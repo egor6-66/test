@@ -1,0 +1,14 @@
+name: Create envfile
+
+on: [ push ]
+
+jobs:
+  create-envfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_REACT_APP_ENV_TEST: 'github envvvvvvv eeeeee'
+          envkey_REACT_APP_ENV_TEST_SECRET: ${{ secrets.SECRET_KEY }}
+          file_name: .env
