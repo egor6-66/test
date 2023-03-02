@@ -25,6 +25,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo REACT_APP_ENV_TEST="github eeeeeeeeeee" >> .env
+          echo REACT_APP_ENV_TEST_SECRET=${{ secrets.SECRET_KEY }} >> .env
+          cat .env
+
       - name: Build Changelog
         id: build_changelog
         run: echo "changelog=- ADD CHANGELOG" >> $GITHUB_OUTPUT
