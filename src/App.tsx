@@ -7,6 +7,8 @@ function App() {
 
     const env = process.env.REACT_APP_ENV_TEST
     const env2 = process.env.REACT_APP_ENV_TEST_SECRET
+    const env3 = process.env.REACT_APP_ENV_TEST3
+
     console.log(env)
     console.log(env2)
 
@@ -15,6 +17,7 @@ function App() {
             <header className="App-header">
                env1 =  {env}
               <div>  envSecret =  {env2}</div>
+                <div>  envSecret 3 =  {env3}</div>
                 <button>get version</button>
             </header>
         </div>
