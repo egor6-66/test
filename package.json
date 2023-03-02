@@ -23,7 +23,8 @@
     "tauri": "tauri",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "release": ""
+    "release": "",
+    "up_version": "npm version patch && git push origin main && git push origin --tags"
   },
   "eslintConfig": {
     "extends": [
