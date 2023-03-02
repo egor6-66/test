@@ -5,9 +5,9 @@ import {relaunch} from '@tauri-apps/api/process'
 
 function App() {
 
-    const env = process.env.REACT_APP_ENV_TEST
-    const env2 = process.env.REACT_APP_ENV_TEST_SECRET
-    const env3 = process.env.REACT_APP_ENV_TEST3
+    const env = process.env.REACT_APP_DEV_CLIENT_SECRET
+    const env2 = process.env.REACT_APP_DEV_CLIENT_ID
+    const env3 = process.env.REACT_APP_CRYPTO_SECRET
 
     console.log(env)
     console.log(env2)
@@ -15,9 +15,9 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-               env1 =  {env}
-              <div>  envSecret =  {env2}</div>
-                <div>  envSecret 3 =  {env3}</div>
+                <div> CLIENT_SECRET = {env}</div>
+                <div> CLIENT_ID = {env2}</div>
+                <div> CRYPTO_SECRET = {env3}</div>
                 <button>get version</button>
             </header>
         </div>
