@@ -1,0 +1,34 @@
+{
+  "//": [
+    "Config for THIS package itself. The zone does not hand out its own `tsconfig` outward — the",
+    "`build` zone sets the baseline for apps via its `/tsconfig` subpath.",
+    "",
+    "JSX is configured here ONLY for the sake of tests: the skin mechanic itself renders no",
+    "component at all — it turns data into text. Live markup is needed by `test/dom.tsx`/",
+    "`seams.test.tsx` (dark pair, runtime seam) and `test/*.test.tsx` — the zone has no rendering of its own."
+  ],
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "sourceMap": true,
+    // Sources don't ship in the tarball (manifest's `files`), so the map must carry them inline —
+    // otherwise it points into a void for the consumer.
+    "inlineSources": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src", "test", "vitest.config.ts", "scripts"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -1,0 +1,10 @@
+# В образ едет только то, что нужно сборке бинарника. Тесты, данные и сама дока туда не нужны.
+db
+data
+*_test.go
+README.md
+FAQ.md
+ROADMAP.yaml
+Dockerfile
+.dockerignore
+.gitignore

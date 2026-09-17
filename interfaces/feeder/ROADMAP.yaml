@@ -1,0 +1,356 @@
+# Дорожная карта @web-core/feeder — источник правды по фактически сделанной работе. Статус
+# проставляется рядом с работой, в момент когда она сделана — не задним числом. Формат тот же,
+# что у packages/io, packages/store, packages/assembly, packages/router (categories → items,
+# log — журнал решений); без milestones — у пакета нет освоенной поставки с датами релиза, только
+# сделанное и открытое.
+
+categories:
+  - category: Фундамент слоя interfaces
+    items:
+      - id: workspace-registered
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "`interfaces/*` в `pnpm-workspace.yaml`"
+        description: |
+          Означает: новый корень воркспейса зарегистрирован рядом с `packages/*`/`products/*`/
+          `apps/*` — pnpm видит пакеты внутри `interfaces/` без вложенного воркспейса (pnpm
+          вложенные не поддерживает, см. комментарий в файле).
+
+      - id: feeder-package-scaffold
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "`interfaces/feeder` — скелет пакета по образцу `packages/form`"
+        description: |
+          Означает: `package.json` (`@web-core/feeder`, `vite build`, `solid-js` peer,
+          `@web-core/generators`+`@web-core/io` dependencies), `tsconfig.json`, `eslint.config.js`
+          (пресет `@web-core/lint`), `vite.config.ts` (`defineLibraryConfig`, один вход `index`,
+          `solid: true`) — build/typecheck/lint прогнаны, все зелёные.
+
+      - id: feeder-placeholder-wired
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "`FeederPlaceholder` подключён в `apps/skin/src/pages/lab`"
+        description: |
+          Означает: `apps/skin` получил зависимость `@web-core/feeder: workspace:*`, пустая
+          dev-страница `pages/lab` (`return ""` раньше) рендерит плейсхолдер. Проверено живым
+          dev-сервером Vite (`curl` по `@fs`-резолву `interfaces/feeder/src/index.ts` и по
+          скомпилированному `pages/lab/index.tsx` — цепочка резолвится и транспилируется без
+          ошибок); визуальная проверка в Chrome не сделана — профиль браузера MCP занят другой
+          параллельной сессией, убивать чужой процесс не стали.
+
+  - category: Архитектура пакета
+    items:
+      - id: fsd-layers-adapted
+        type: decision
+        status: Done
+        priority: High
+        milestone: null
+        name: "Адаптированный FSD: entities/features/widgets не в бизнес-смысле, без app/pages"
+        description: |
+          Означает: `entities` — структурная модель движка (узел дерева, правило маппинга), не
+          бизнес-сущность; `features` — фичи интерфейса (отредактировать значение, выбрать цель
+          маппинга), не бизнес-операция; `widgets` — сборка entities+features в UI мода. `app`/
+          `pages` не заведены — пакет не приложение с роутингом, вход наружу — экспорты (мод =
+          export). Разметка под мод 1: `entities/tree` (`lib/binding.ts`+`lib/use-tree.ts`),
+          `features/edit-value` (`ui/kit/*`), `widgets/tree` (`ui/tree/*`) — перенос из
+          `apps/skin/entities/feeder`. Разбор — FAQ.md.
+
+  - category: Режимы наполнения
+    items:
+      - id: mode-typed-tree
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 1 — зод-схема → дерево с ручным редактированием"
+        description: |
+          Означает: перенос `apps/skin/entities/feeder` (`ui/tree`, `ui/kit`, `lib/binding`,
+          `lib/use-tree`) в `interfaces/feeder` под разметку `entities/tree`/`features/edit-value`/
+          `widgets/tree`, оторванный от `componentStore.use(kit).io.schema` — `Tree` полностью
+          контролируемый (`schema`/`value`/`onChange` пропами), сам ничего не хранит. Принят user,
+          подключён живым потребителем (`apps/skin/src/pages/index.tsx`), проверен вручную в
+          браузере (правка скаляра, add/remove элемента списка).
+
+      - id: mode-typed-tree-tests
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Тесты мода 1 — entities/tree (логика) + widgets/tree (реальный DOM-рендер)"
+        description: |
+          Означает: vitest+jsdom. `entities/tree` — `itemBinding`/`useTree` чистой логикой (8
+          тестов, `createRoot`, реальная схема через `fieldsOf`). `widgets/tree` — `Tree`
+          смонтирован по-настоящему через `solid-js/web` (не мок): скаляр пишет по пути, «Добавить»
+          дописывает пустой элемент, у каждого айтема своя кнопка «Убрать» (3 теста). Потребовалось
+          `test.server.deps.inline` в `vitest.config.ts` — Ark-UI/Zag/Kobalte внутри `@web-core/ui`
+          отдают сырой `.jsx`, vitest иначе грузит их напрямую через Node и падает. Разбор — FAQ.md.
+
+      - id: mode-openapi-recognize
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 2 — entities/openapi: распознавание свагера 2.0 + zod-схема на ручку"
+        description: |
+          Означает: свой `MappingTemplate` (механизм `@web-core/generators/mapping`, тот же
+          `run(raw, templates)`) под Swagger 2.0 — жёсткое совпадение (`isEntry` смотрит на
+          `swagger: "2.0"`), самодостаточный (не переиспользует apps/skin-шный
+          `entities/openapi/model/import/swagger2.ts`, тот завязан на свои `Endpoint`/`HttpMethod`
+          и не строит схему тела). На каждую операцию — `method`/`url`/`tag` + `z.ZodType` из её
+          `parameters`/тела (JSON Schema → zod, тот же класс работы, что `@web-core/generators/
+          fields`, но на вход другой формат). Тесты — реальный (урезанный) petstore-документ, 8
+          шт, включая вложенные `$ref` (Pet→Category/Tag) и защиту от циклов через `z.lazy`.
+
+      - id: mode-openapi-invoke
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 2 — features/invoke-endpoint: реальный HTTP-вызов"
+        description: |
+          Означает: `rawRestRequest` из `@web-core/query/rest` (новая dependency пакета) —
+          выполнить ручку с собранными параметрами, вернуть `{ status, ok, headers, body }`.
+          Path-плейсхолдеры (`{petId}`) подставляются по имени ключа `value`, остальное — query
+          (массивы — повторяющимися парами), `body` — JSON. Решение user: сеть — на стороне
+          feeder, не потребителя (в отличие от apps/skin-шного `model/endpoint/call.ts`, который
+          остаётся отдельным, не трогается). Тесты — мок `fetch`, 5 шт.
+
+      - id: mode-openapi-widget
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 2 — widgets/openapi: два вида, OpenapiEditor + OpenapiList"
+        description: |
+          Означает: по находке user поверх исходного плана — не один виджет, а два под разные
+          экраны. `OpenapiEditor` — полный: список ручек из распознанного документа, конфигурация
+          параметров каждой переиспользует `Node`/`Leaf` из `widgets/tree` (локальный `binding` на
+          карточку, не наружу на каждую правку). `OpenapiList` — компактный: принимает уже
+          настроенные `{ endpoint, value }[]`, никакого UI полей, только «Вызвать» на каждую.
+          Публичный `onChange` у обоих — `OpenapiInvocation` (`{ endpoint, value, response }`,
+          `value` добавлен по итогам ревью user — без него `OpenapiList` нечем было бы кормить),
+          стреляет на сам вызов, не на правку поля. Тесты — реальный DOM-рендер (`solid-js/web`),
+          6 шт (3+3).
+
+      - id: mode-mapping-entities
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 4 — entities/mapping: describeVariant + applyMapping поверх @web-core/io"
+        description: |
+          Означает: `describeVariant(unknown)` — распознаёт по `instanceof z.ZodType`, зовёт
+          `describeSchema` или `describeSample` из `@web-core/io`, обе отдают одну форму
+          (`PathType[]`). `applyMapping(source, rules)` — тонкая обёртка над `applyFieldRules`
+          (не `collectFieldRuleReport` — один инстанс, не пачка строк), источник не объект
+          считается пустым, не падает. Вся механика — в `io`, отсюда только типизация «двух
+          вариантов». Тесты — 6 шт.
+
+      - id: mode-mapping-widget
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "Мод 4 — widgets/mapping: Mapping + FieldPicker"
+        description: |
+          Означает: `Mapping(a, b, onChange)` — на каждый путь варианта Б (`describeVariant(b)`)
+          свой `FieldPicker` (нативный `<select>` из путей А — Ark-UI `Select` не открывается в
+          jsdom, разбор — FAQ.md). Живой, как мод 1 (`onChange` на каждый пик, не по кнопке) —
+          несёт `{ rules: FieldRule[], result: MappingResult }`, `rules` для переиспользования на
+          новых данных той же формы (сохранение — на стороне потребителя, бэк, по словам user),
+          `result.row` — уже применённое сведение. v1 — только 1:1 (путь→путь), без UI под
+          `steps`/`onFail`. Тесты — реальный DOM-рендер, 5 шт.
+
+      - id: mode-file-upload
+        type: feature
+        status: Backlog
+        priority: Medium
+        milestone: null
+        name: "Мод 3 — загрузка файла"
+        description: |
+          Означает: интерфейс инпут-загрузчика; структура содержимого файла неизвестна заранее.
+          Объём сузился после мода 4 — сам UI сведения уже есть (`Mapping`), моду 3 остаётся
+          только «файл → сэмпл» и передать результат в готовый `Mapping` как вариант А, не
+          изобретать сведение заново.
+
+      - id: mapping-ui
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "UI сведения «корм → потребитель» поверх `@web-core/io`"
+        description: |
+          Означает: экран сопоставления путей — `describeSample`/`describeSchema` (плоский список
+          путей+типов чужих данных и целевой схемы) и `FieldRule[]`+`applyFieldRules`/
+          `collectFieldRuleReport` (движок «куда что положить» с отчётом) уже существуют в
+          `packages/io`, headless. Материализовалось как мод 4 (`Mapping`, `mode-mapping-widget`)
+          — не «только для мода 3», как думали раньше (уточнение 2026-09-14), а отдельный
+          универсальный мод, не привязанный к происхождению данных (уточнение 2026-09-15, находка
+          user — мод 2 без способа скормить результат потребителю был бесполезен).
+
+  - category: Документация
+    items:
+      - id: readme-faq-roadmap-first-draft
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "README/FAQ/ROADMAP — первый черновик по шаблону «движок»"
+        description: |
+          Означает: шаблон взят по образцу `packages/store` (первый пилот genus `engine`) —
+          Анатомия/Использование заполнены тем, что реально есть (плейсхолдер); Настройки/
+          Состояния/IO/Сборки/Рецепт — честно помечены пустыми, функциональности под них пока нет
+          (правило «дока — от кода, не наоборот»). FAQ.md держит решения слоя `interfaces`
+          (группа/genus/почему openapi не сливается физически) и разбор, какие кирпичи `io`/
+          `generators` уже закрывают режимы 2/3.
+
+      - id: examples-md
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "EXAMPLES.md — рабочий копипаст-код под все реализованные моды"
+        description: |
+          Означает: по образцу `interfaces/chat/EXAMPLES.md` (сосед по слою) — не канон, а
+          готовый к запуску код. Дерево без бэкенда, дерево со списком, `OpenapiEditor` с реальным
+          вызовом (jsonplaceholder, публичный fake-REST — «Отправить» реально стучится в сеть),
+          `OpenapiList`, полный флоу редактор→сохранить→витрина, `Mapping` на ответе мода 2.
+          README.md урезан до пары базовых сниппетов со ссылкой сюда.
+
+log:
+  - id: mode-mapping-done
+    type: plan
+    date: 2026-09-15
+    summary: >
+      Мод 4 (`Mapping`) заведён и доведён до принятого состояния в одном заходе — не по
+      исходному плану (там сведение было частью модов 2/3, `mapping-ui`), а по находке user
+      поверх готового мода 2: результат вызова ручки сам по себе бесполезен без способа скормить
+      его конкретному потребителю, а способ этот не должен знать, откуда данные взялись. Решение:
+      отдельный мод, вход — два «варианта» (А/Б, каждый сырые данные или zod-схема), юзер сводит
+      поля вручную (v1 — 1:1, без `steps`/`onFail` в UI), движок отдаёт `{ rules, result }` живьём
+      на каждый пик. `rules` — сохранить и переиспользовать на новых данных той же формы,
+      сохранение на бэке — забота user, не feeder.
+
+      `entities/mapping` (`describeVariant`+`applyMapping`) — тонкая обёртка, вся механика в
+      `@web-core/io` (`describeSample`/`describeSchema`/`applyFieldRules`), от feeder только
+      интерфейс — по словам user. `widgets/mapping` — по ходу тестирования выяснилось, что Ark-UI
+      `Select` (тот же приём, что `EnumInput` мода 1) в принципе не открывается в jsdom ни одним
+      способом эмуляции клика/pointer/клавиатуры — `FieldPicker` переписан на нативный `<select>`
+      (`FieldSelect` из `@web-core/ui`), надёжнее и уместнее для плоского списка путей.
+
+      41 тест на пакет, build/typecheck/lint зелёные. Объём мода 3 сузился — сможет переиспользовать
+      готовый `Mapping`, не строить сведение заново. `mapping-ui` закрыт этим модом (не только для
+      мода 3, как думали раньше). Живого браузера не было — vitest+jsdom.
+
+  - id: mode-openapi-done
+    type: plan
+    date: 2026-09-15
+    summary: >
+      Мод 2 доведён до принятого состояния — весь стек, поверх переосмысления из
+      `mode-openapi-rediscussed`. `entities/openapi` (свой `MappingTemplate` под Swagger 2.0,
+      самодостаточный zod из спеки, вложенные `$ref`+циклы через `z.lazy`), `features/invoke-
+      endpoint` (реальный `fetch` через `@web-core/query/rest`, path/query/body из одного `value`),
+      `widgets/openapi` — 30 тестов на весь пакет, build/typecheck/lint зелёные.
+
+      По ходу ревью user нашёл реальный кейс, не заложенный в исходный план: настройка ручки и её
+      вызов происходят на РАЗНЫХ экранах (редактор конфигурации vs витрина показа компонента) —
+      один виджет на два сценария не годится. Решение: разделить на `OpenapiEditor` (полный,
+      бывший единственный `Openapi`) и `OpenapiList` (компактный, новый — только вызов уже
+      настроенного, без единого поля конфигурации). Следом сам user поймал вторую дыру в
+      контракте — `OpenapiInvocation` не нёс `value` (то, с чем реально вызвали), без него
+      `{ endpoint, value }` для `OpenapiList` собрать было не из чего; добавлено во все точки
+      (`EndpointCard.onInvoke`, `OpenapiEditor`, `OpenapiList`).
+
+      Живого браузера с модом 2 не было (в отличие от мода 1) — весь прогон через vitest+jsdom.
+      `EXAMPLES.md` заведён по образцу `interfaces/chat` — 5 кейсов, README урезан до базовых
+      сниппетов со ссылкой. Закоммичено вместе с этим заходом.
+
+  - id: mode-openapi-rediscussed
+    type: plan
+    date: 2026-09-14
+    summary: >
+      Переосмысление мода 2 с user — первоначальный план (см. лог `interfaces-layer-founded`) был
+      неверным: мод 2 — не «нетипизированное сведение корма» (FieldRule/mapping-ui), а типизированный
+      движок как мод 1, просто схема строится из спеки Swagger 2.0 при распознавании, а не приходит
+      готовой. Также — граница со скином тоньше, чем в первой версии FAQ: не только рендер тела
+      ручки, а весь путь целиком — свой `MappingTemplate` под свагер 2.0 (не переиспользует
+      apps/skin-шный, тот завязан на apps/skin-домен и не строит схему тела), список ручек,
+      конфигурация параметров (переиспользует `Node`/`Leaf` мода 1), и сам HTTP-вызов —
+      всё на стороне feeder (`@web-core/query/rest`, новая зависимость). `onChange` мода 2 стреляет
+      на вызов ручки (несёт `{ endpoint, response }`), не на каждую правку поля, в отличие от мода 1.
+      apps/skin-шный `entities/openapi` (модели/сторы сервисов, свой парсинг, свой `call.ts`) этой
+      работой не трогается — интеграция (заменить ли им свою механику на feeder) осталась за
+      владельцем `apps/skin`. FAQ.md/ROADMAP.yaml поправлены под уточнённую модель перед стартом
+      кода — по явной просьбе user, не в параллель с кодом.
+
+  - id: mode-typed-tree-done
+    type: plan
+    date: 2026-09-14
+    summary: >
+      Мод 1 (`Tree`) доведён до принятого состояния. Перенос из `apps/skin/entities/feeder` под
+      разметку `entities/tree`/`features/edit-value`/`widgets/tree`, решённую в этом же заходе.
+      Тесты: `entities/tree` (чистая логика, 8 шт) + `widgets/tree` (реальный DOM-рендер через
+      `solid-js/web`, 3 шт) — потребовали `test.server.deps.inline` в `vitest.config.ts` под
+      Ark-UI/Zag/Kobalte (отдают сырой `.jsx`). build/typecheck/lint/test зелёные, закоммичено.
+
+      Побочная находка при живой проверке в браузере (`apps/skin/src/pages/index.tsx`, живой
+      потребитель `Tree`): мигание всего экрана при добавлении элемента списка — НЕ баг feeder,
+      причина в `packages/skin` (`useComponentSkin`/`ensureComponentSkin`, `provider.tsx`/
+      `connection.ts`) — там общий на всё приложение сигнал (`outfitData`) перезаписывается
+      безусловно при монтировании ЛЮБОГО компонента `@web-core/ui`, из-за чего монтирование новых
+      элементов аккордеона задевает несвязанные компоненты (например, индикатор `SegmentGroup`).
+      Найдено вместе с user через `MutationObserver`+`chrome-devtools` на живой странице, ошибочная
+      первая гипотеза (роутер `apps/skin`) отброшена по требованию user проверить точечно.
+      Эскалировано user как заявка на `packages/skin` — не в зоне feeder, не чинилось здесь.
+
+  - id: fsd-layers-adapted-decided
+    type: plan
+    date: 2026-09-14
+    summary: >
+      Обсуждение с user: внутренняя архитектура feeder — FSD-слои как в `apps/skin`, но
+      переосмысленные под движок, не бизнес-приложение. `entities` — структурная модель движка
+      (не бизнес-сущность), `features` — фичи интерфейса (не бизнес-операция), `widgets` —
+      сборка. `app`/`pages` не заводятся — нет роутинга, вход наружу — экспорты пакета. Разметка
+      под мод 1 зафиксирована (`entities/tree`, `features/edit-value`, `widgets/tree`). Это
+      архитектура конкретно feeder-а, не канон всего слоя `interfaces/` — user верхний уровень
+      (канон слоя, будущий `interfaces/chat`) оставляет за собой вместе с architect, возьмут
+      feeder как образец.
+
+  - id: interfaces-layer-founded
+    type: plan
+    date: 2026-09-14
+    summary: >
+      Обсуждение с user: новый корень `interfaces/` — слой между `packages/` и `apps/`, сущности
+      которого сводят функционал нескольких пакетов под общий UI и переиспользуются больше чем
+      одним приложением. Первый кейс — feeder (объединяет `@web-core/generators`+`@web-core/io`
+      под три задуманных режима наполнения — зод-схема→дерево, ручки по шаблону версии, файл),
+      второй ожидаемый — chat, ещё не заведён. По ходу разбора выяснилось, что `@web-core/io` уже
+      несёт headless-кирпичи под untyped-режимы (`describeSample`/`describeSchema`/`FieldRule`), а
+      `@web-core/generators/mapping` — механизм шаблонов по версии, уже используемый swagger2-
+      импортом в `apps/skin/entities/openapi`; недостающая часть — UI поверх них и сама разборка
+      тела запроса ручки в схему (сегодня `Endpoint.body` — голый `string`).
+
+      Решение user: сначала фундамент (воркспейс, скелет пакета, плейсхолдер в приложении), план
+      функционала — отдельным заходом. Сделано в этом заходе: `interfaces/*` в
+      `pnpm-workspace.yaml`, `interfaces/feeder` по образцу `packages/form` (vite-сборка,
+      solid-js peer), `FeederPlaceholder` подключён в пустую dev-страницу `apps/skin/src/pages/
+      lab`, build/typecheck/lint зелёные, цепочка резолва проверена dev-сервером Vite. Роль
+      architect: сделано напрямую без owner-сессии — `interfaces/` ещё не зона с назначенным
+      овнером, решение user (обсуждение в этом же заходе).
+
+  - id: readme-faq-roadmap-drafted
+    type: plan
+    date: 2026-09-14
+    summary: >
+      По просьбе user подтянута тройка README/FAQ/ROADMAP.yaml по образцу пилота genus `engine`
+      (`packages/store`). Группа `interfaces` выбрана как ещё не устоявшаяся для движков (снято
+      прямым текстом корневого README) — называет принадлежность новому корню, не то, что пакет
+      делает (это заняли бы `data`/`state`, уже занятые `io`/`store`). Разделы без реального
+      содержания (Настройки/Состояния/IO/Сборки/Рецепт) оставлены явно пустыми с пометкой «см.
+      ROADMAP», не заполнены вымышленным текстом под ещё не реализованные режимы.

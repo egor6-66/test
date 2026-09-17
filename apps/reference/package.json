@@ -1,0 +1,36 @@
+{
+  "name": "@web-core/reference",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Эталонное приложение web-core: гейт сборки всей цепочки. В реестр не едет (PROBEWEB-4).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . && pnpm run typecheck",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@kobalte/core": "^0.13.12",
+    "@web-core/skin": "workspace:*",
+    "@web-core/solid": "workspace:*",
+    "@web-core/style": "workspace:*",
+    "@web-core/trace": "workspace:*",
+    "@web-core/ui": "workspace:*",
+    "solid-js": "^1.9.14"
+  },
+  "devDependencies": {
+    "@web-core/build": "workspace:*",
+    "@web-core/lint": "workspace:*",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "eslint": "^10.8.1",
+    "jsdom": "^30.0.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}

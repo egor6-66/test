@@ -1,0 +1,1079 @@
+# Дорожная карта @web-core/skin — источник правды по фактически сделанной работе. Формат тот же,
+# что у packages/assembly/packages/store: categories → items, без milestones — у пакета нет
+# освоенной поставки с датами релиза, только сделанное и открытое.
+
+categories:
+  - category: Паспорт и анатомия
+    items:
+      - id: anatomy-from-zag
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Форма анатомии — от @zag-js/anatomy, не своя
+        description: |
+          Означает: одно объявление анатомии порождает и attrs для узла, и selector для скина —
+          разъехаться им негде по построению. Своей формы паспорта в пакете нет.
+
+      - id: passport-two-slices
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Паспорт режется на срез рантайма и срез редактора
+        description: |
+          Означает: `./model` видит только то, что читают assemble/checkOutfit/generateSkinCss;
+          `means`, сборки и правило вложенности живут в `./editor` и не едут в бандл потребителя,
+          которому порождение не нужно. Разбор — FAQ.md.
+
+      - id: passport-view-bridge
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: Мост «узел → координата» (passport-view)
+        description: |
+          Означает: механика сборки адресует узлы, скин — координаты; без моста редактор
+          произвёл бы стили экземпляров, а не скин.
+
+      - id: self-assembly-slice
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: Сборка компонента — отдельно от паспорта, их может быть несколько
+        description: |
+          Означает: держатель сборок — срез редактора (`PassportEditorInfo.assemblies`), не поле
+          паспорта; паспорт остался про форму компонента, не про витрину случаев.
+
+      - id: no-validation-axis-on-passport
+        type: decision
+        status: Rejected
+        priority: High
+        milestone: null
+        name: "Валидация — НЕ четвёртая ось ComponentPassport, вопрос закрыт без правки здесь"
+        description: |
+          `@web-core/form` (`packages/form/ROADMAP.yaml`, `passport-validation-field-open-question`)
+          изначально предполагал новое поле паспорта, симметричное `selfAssembly` — «третья/
+          четвёртая ось» рядом со скином. Architect проверил РЕАЛЬНУЮ реализацию (`@web-core/form/
+          solid`'s `useComponentValidation`), не предположение: сигнатура —
+          `useComponentValidation(_passport: unknown, props: object)` — параметр паспорта
+          буквально не используется (подчёркивание в имени, тип `unknown`). Весь механизм
+          (свой путь через `props["data-node"]` → лукап в дереве → `bind`; правило показа/
+          доступности через `props.meta?.rule`) не читает из `ComponentPassport` ни одного поля.
+
+          Значит вопрос «нужно ли новое поле паспорта» имеет ответ: НЕТ, не сейчас — механике
+          нечего было бы с ним делать. `packages/skin` не трогается этим заходом вообще. Если
+          позже реально понадобится что-то знать О КОМПОНЕНТЕ для валидации (не о данных) —
+          заводить отдельным пунктом с живым сценарием в руках, не по аналогии с этим разбором.
+
+          Cross-zone работа по оси валидации целиком — `packages/ui`
+          (`packages/ui/ROADMAP.yaml`, `kit-life-validation-fold-in`): `useKitLife` сам решает,
+          звать ли `useComponentValidation`, паспорт этого решения не касается.
+
+  - category: Значения
+    items:
+      - id: seed-values
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Литерал и семя смешиваются как один механизм
+        description: |
+          Означает: скин пересеваем — назвал семя, обе половины построила механика; литерал по
+          имени перебивает построенное, и ручная правка переживает перегенерацию.
+
+      - id: fluid-poles
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: Текучий размер объявляется полюсами, не CSS-выражением руками
+        description: |
+          Означает: палитра называет значение на узком и широком краю, `clamp()` печатает
+          механика — наклон проверяем, а не выведен на глаз автором.
+
+      - id: vocabulary-contract
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Словарь ролей — закрытый машинный контракт палитра↔форма↔наряд
+        description: |
+          Означает: роль называется по назначению, не по виду; неполнота палитры относительно
+          словаря названа ДО дressing, не всплывает молча на странице.
+
+  - category: Рецепт и порождение
+    items:
+      - id: recipe-form-from-panda
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Форма рецепта — от Panda CSS, с двумя сознательными отличиями
+        description: |
+          Означает: части/база/вариации/умолчание/пересечения — взятая форма; ось вариаций одна
+          (не карта осей), состояние и предок — координаты из паспорта, не чужой словарь условий.
+
+      - id: nested-output
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Порождение — вложенный CSS по умолчанию, плоский — отдельным подпутём
+        description: |
+          Означает: браузер разворачивает вложенность сам; `./flat` — для файла на диск, старого
+          клиента, сверки снимком, не свойство порождения по умолчанию.
+
+      - id: bound-single-source
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Источник паспортов называется один раз (withPassports)
+        description: |
+          Означает: сигнатура не даёт передать разные источники в проверку наряда и в порождение
+          — раньше это расходилось молча, отчёт был чист, а страница адресовала несуществующее.
+
+  - category: Проверки
+    items:
+      - id: coverage-check
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: skinGaps — покрытие координат значением, не консольным предупреждением
+        description: |
+          Означает: используется каждым recipe.test.tsx кита — проверка одного паспорта против
+          собственного наряда.
+
+      - id: contrast-check
+        type: feature
+        status: Done
+        priority: Low
+        milestone: null
+        name: skinContrast — читаемость по формуле зоны значений
+        description: |
+          Означает: перечень пар «текст на заливке», не прошедших WCAG-норму, и пар, которые
+          посчитать нечем. Пока без потребителя — витрина ещё не показывает предупреждения.
+
+  - category: Теги
+    items:
+      - id: group-by-tag-accepts-flat-list
+        type: feature
+        status: Done
+        priority: Low
+        milestone: null
+        name: "groupByTag — принимает и словарь (Form.variantTags), и плоский {name, tags}[]"
+        description: |
+          Найдено на витрине `apps/skin`: `presets/variantsOf` (`src/presets/ROADMAP.yaml`'s
+          `variants-of-outfit-scoped`) отдаёт готовый плоский список вариантов с тегами — вызывающий
+          хотел сгруппировать его по тегу для нав-списка, и первая версия ответа ("разверни
+          Object.fromEntries сам") user назвал не лучше, чем сделать это самому фильтром: "это
+          выглядит не лучше, чем если бы я просто фильтранул у себя. ты не можешь у себя расширить,
+          чтобы функция умела работать с массивом?"
+
+          Сделано: `groupByTag` принимает `Record<string, readonly string[]> | readonly
+          TaggedName[]` — `Array.isArray` различает форму на входе, тело (перевод в `tag→variants`,
+          сортировка `sortTags`) одно на оба случая. Три существующих вызывающих
+          (`packages/ui/component-info.ts`, `apps/skin/.mcp/tools/presets.ts`, тесты) передают
+          словарь и не меняются — расширение аддитивное, не ломающее.
+
+  - category: Служба раздачи и надевание
+    items:
+      # presets-full-crud, client-graphql-transport, tag-kind-support,
+      # record-envelope-kind-and-saved-at, presets-client-component-filter переехали в
+      # src/presets/ROADMAP.yaml — это пункты про сам client.ts, не про надевание.
+      - id: canon-missing-author-and-tags
+        type: bug
+        status: Done
+        priority: High
+        milestone: null
+        name: "author и Outfit.tags — реально пишутся, но не объявлены в TS-канона видов"
+        description: |
+          Найдено овнером backend/presets (2026-09-09) при сверке плана типизации службы с тем, что
+          реально лежит в проде — до́лжно быть починено ЗДЕСЬ, ПЕРЕД тем как backend заведёт
+          Go-структуры один-в-один по этим интерфейсам (см. `canon-drift-author-tags-assembly` в
+          `backend/presets/ROADMAP.yaml` — типизированная валидация на запись иначе начнёт бить
+          существующие живые записи, у которых эти поля реально есть).
+
+          Два расхождения в `src/engine/look/types.ts`:
+          1. `author` — сквозной атрибут владения (см. `authorGuard`,
+             `apps/skin/.mcp/src/tools/shared.ts`). MCP подмешивает его в `state` ЛЮБОГО вида при
+             сохранении (`{...state, author}`), но явно объявлен только в `ContentState`
+             (`apps/skin/.mcp/src/tools/shared.ts`) — `Palette`, `Form`, `Outfit`,
+             `ComponentAssembly` о нём молчат, хотя реальные записи (проверено живьём: `tag/status`)
+             несут `{name, label, author}`.
+          2. `Outfit.tags` — MCP подмешивает `tags: string[]` при сохранении наряда
+             (`resolveTags`, `shared.ts`), а интерфейс `Outfit` этого поля не объявляет вовсе.
+
+          Решение user дословно: "давай ничего не обходить! все делаем нормально!" — значит
+          `author?: string` добавляется явным полем в `Palette`/`Form`/`Outfit`/
+          `ComponentAssembly` (по образцу уже объявленного в `ContentState`), `tags?: readonly
+          string[]` — явным полем в `Outfit`. Канон должен описывать то, что реально пишет MCP, не
+          наоборот.
+
+          Блокирует: `kinds-registry`/`canon-drift-author-tags-assembly` в
+          `backend/presets/ROADMAP.yaml` — Go-структуры там пишутся зеркально к ЭТОМУ, исправленному
+          канону, не к сегодняшнему.
+
+      - id: wear-switch-moved
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: Надевание скина переехало в движок из отдельного рантайм-пакета
+        description: |
+          Означает: `./wear` (framework-agnostic) + `./solid` (реактивный плагин) — тот же приём,
+          что `@web-core/style/solid`. Гонка source.css() гасится счётчиком последнего действия.
+
+      # presets-client-component-filter переехал в src/presets/ROADMAP.yaml — пункт про сам
+      # client.ts, не про надевание.
+
+      - id: set-mode-no-refetch
+        type: bugfix
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "setMode() не ходит к source.css() — переключение половины больше не перезапрашивает скин"
+        description: |
+          Заявка user дословно: "сейчас свитчер темная/светлая тема постоянно делает перезапрос. вот
+          тут мы юзаем apps/skin/.../theme-switch/index.tsx. но там вроде вообще запроса не должно
+          быть, там же цвет вроде сразу весь едет" — и сам угадал причину: обе половины
+          действительно уже в одном CSS-тексте, полученном на первый `wear()` (`DARK_SELECTOR` в
+          `engine/generate/print.ts` печатает и светлый, и тёмный блок разом).
+
+          Было: `SkinConnection.setMode()` (`solid/connection.ts`) звал `wear(current.name, { mode })`
+          — тот же наряд, но `wear()` в `wear/switch.ts` безусловно ходит за `source.css()`, даже
+          когда имя не изменилось. Каждый клик по переключателю темы — лишний сетевой поход и
+          перепечатка листа стилей ради того, что уже есть в CSS.
+
+          Стало: `setMode()` — своя ветка в `SkinSwitch` (`wear/switch.ts`), без `source.css()`:
+          `writeDark()` + `remember()`. `SkinConnection.setMode` зовёт её и тот же `applyWorn`, что
+          `wear`/`takeOff`/`restore` — `componentData`/`outfitData` не чистятся (имя наряда не
+          менялось). Разбор — FAQ.md, раздел «Надевание».
+
+          Тесты: `test/skin-switch-component.test.tsx` (`source.css()` не растёт на второй `setMode`),
+          `test/skin-provider.test.tsx` (то же через `SkinConnection`/`SkinProvider`).
+
+      - id: component-skin-on-demand
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "ensureComponentSkin — компонент сам просит свой CSS, по значению variant/setting, аддитивно"
+        description: |
+          Третья нога той же цепи, что `presets-component-filter` (бэк, Done) и
+          `presets-client-component-filter` (выше, Done) — но эта нога живёт не на сети, а внутри
+          движка и надевания, и переписана дважды за обсуждение: обе первые версии были неверны,
+          третья проверена чтением кода, не угадана.
+
+          Слова user, откуда взялась заявка (сведены в один блок, дословно, по ходу обсуждения):
+          "зачем нам куча флоу... я вообще не вижу смысла, чтобы продукт контролировал загрузку на
+          таком уровне... нет ли смысла, чтобы стили запрашивал сам компонент? типа лэйзи для
+          самого компонента... но это ничего не перезатирает, а просто запрашивается тогда, когда
+          нужно". Дальше, отдельно и жёстче, про глубину резки: "у меня может быть в аутфите
+          миллион вариантов кнопки, а в апп я юзаю только 5... я хочу, чтобы кнопка запрашивала не
+          все миллион вариантов, а брала свой — чтобы когда отрендерилась первая кнопка
+          data-variant=primary, она загрузила только primary один раз для всех кнопок с этим
+          вариантом, а когда отрендерилась data-variant=secondary — только secondary, и так для
+          всех". И почему не чинить это на уровне "какой набор компонентов нужен странице": "я не
+          вижу ни одного кейса, когда мне надо проверить, что у меня на старте было всё — это
+          больше похоже на баг". Про вторую ось (`settings`, кроме `variant`) — "я предлагаю это
+          сразу брать вместе, флоу один" — единый примитив на обе оси, не два похожих рядом.
+
+          Что было НЕВЕРНО на первых двух заходах (стоит здесь, чтобы не повторить третий раз):
+          1. Первая версия — приложение само копит список нужных компонентов и перевызывает
+             `wear()` с растущим списком, `sheet.put()` (полная замена) на каждый рост. Отвергнута
+             user: это политика продукта поверх механики, которой продукт не обязан владеть, и
+             `sheet.put()` — не тот примитив (полная замена задумана для смены НАРЯДА целиком, не
+             для роста набора загруженных компонентов).
+          2. Вторая версия (моя и owner-app) — для одного компонента отдельный узкий путь МИМО
+             `assemble()`/`checkOutfit()`, потому что показалось, что полнота наряда там жёстко
+             зашита. Опровергнуто чтением `apps/skin/.mcp/src/engine/validate.ts`'s `checkForm`:
+             он уже сегодня строит СИНТЕТИЧЕСКИЙ наряд `{ name, palette, forms: [form.name] }` +
+             `parts = { palettes: [palette], forms: [form] }` и зовёт `checkOutfit`/`assemble()`
+             без единой правки внутри них. Полнота, которую требует `checkOutfit`
+             (`engine/look/check.ts:74-84`, флаг `unknown-form`; `assemble.ts:13-14`, бросает
+             `OutfitRefused` на любом флаге) — это полнота ПАРЫ «наряд+части», которую ей дали, а
+             не «в сторе есть абсолютно всё». Значит для уровня «один компонент» новый примитив
+             ВООБЩЕ не нужен — нужна функция, которая строит такую самосогласованную урезанную
+             пару (найти имя формы компонента через `client.list(form, {component})`, пересечь с
+             `outfit.forms`, которые уже в памяти после `wear()`) и отдаёт её тем же
+             `assemble()`/`checkOutfit()`/`generateSkinCss()`, без единой правки в них.
+
+          Что осталось верным и провалилось глубже, когда user спросил про variant/settings:
+          резать нужно НЕ на уровне "какая форма компонента", а на уровень ниже — какое ЗНАЧЕНИЕ
+          variant/setting внутри ОДНОЙ формы. Тут готового прецедента (как `checkForm`) уже нет —
+          два места в `engine/rules/traverse/recipe.ts` ловят частичность рецепта как баг, если
+          отдать им сырое подмножество `variants`/`settings` не подумав:
+          - `growRecipe` (строки ~16-23): флаг `default-missing`/`unknown-variant`, если
+            `recipe.defaultVariant` не найден среди переданных `variants`. Значит default обязан
+            грузиться ВМЕСТЕ с `base`, при первом же обращении к компоненту любым его значением —
+            иначе движок решит, что дефолта не существует, хотя его просто ещё не загрузили.
+          - `growCompound` (строки ~142-186): флаг `unknown-variant`, если хоть одно значение
+            пересечения (`CompoundVariant.variants`) не найдено среди переданных `variants`.
+            Значит пересечение печатается ТОЛЬКО когда все его значения уже загружены — при
+            появлении недостающего значения пересечение допечатывается следом, аддитивно, ничего
+            не трогая из уже напечатанного. `CompoundVariant` не несёт поля `settings`
+            (`engine/recipe/slot.ts`) — у пересечений связи с осью настроек нет вовсе, поэтому у
+            `settings` эта проблема не возникает: там нет своего "default-missing" и нет
+            пересечений, резать можно per-value без дополнительной книжки.
+
+          Контракт (предлагается для реализации, не жёсткое ТЗ самому себе):
+          1. `engine/rules`/`engine/generate` — новые узкие функции печати НАД уже
+             существующими `growRecipe`/`growParts`/`growCompound` (не переписывают их): печать
+             `base`+`defaultVariant` вместе; печать одного значения `variant` (+ пересечения,
+             ставшие полностью покрытыми); печать одного значения одной `setting`. Ничего в
+             `checkOutfit`/`assemble()`/существующей `generateSkinCss` не меняется.
+          2. `presets/source.ts` (или новый модуль рядом) — функция «дай мне провалидированный
+             рецепт ОДНОГО компонента текущего наряда»: сетевой узкий фетч через уже готовый
+             `client.list(PRESET_KIND.form, { component })`, пересечение с `outfit.forms` из
+             памяти, самосогласованная пара для `assemble()`/`checkOutfit()` (приём `checkForm`).
+          3. `wear/switch.ts` (или новый модуль рядом) — `ensureComponentSkin(component, axis,
+             value)`: кеш «что уже допечатано» на текущий наряд (компонент → {base загружен?,
+             набор виденных variant-значений, по каждой setting — набор виденных значений}), сеть
+             и печать только на НОВОЕ значение, доклейка в лист (не `sheet.put()` — новый способ
+             ДОПИСАТЬ, не заменяя). На смену наряда (`wear()` новым именем) — переиграть весь кеш
+             целиком против нового наряда тем же путём.
+          4. `solid/` — `useComponentSkin(passport, props)`: реактивно читает
+             `props[passport.variantAxis.mark.name]` и `props[settings[name].mark.name]` для
+             каждой объявленной `setting`, на каждое новое значение зовёт `ensureComponentSkin`.
+             Без `SkinProvider` в дереве — не бросает, просто ничего не делает (кит обязан уметь
+             жить без presets/провайдера вовсе, это его базовое обещание, не только этой заявки).
+
+          В объём ЭТОЙ заявки НЕ входит: вызов `useComponentSkin(passport, props)` внутри
+          конкретных компонентов кита (`packages/ui/src/*/components/root.tsx`, ~35 файлов, один
+          новый импорт `passport` + одна строка на файл) — отдельная заявка в
+          `packages/ui/ROADMAP.yaml`, ведёт её owner той зоны. Тоже не входит: изменения в
+          `backend/presets` (уже отдаёт `component`-фильтр, этого достаточно — резать нужно JSON
+          рецепта на CSS-текст, а не сетевой ответ на более мелкие сетевые ответы) и в
+          `packages/assembly` (не зовёт `assemble()`/`checkOutfit()` ни разу — проверено grep'ом
+          owner'ом assembly, вызов на монтировании решён за кит, не за `RenderNode`).
+
+          Не кодить до согласования: обе половины (эта и `packages/ui`'s) идут через architect на
+          сверку контракта между зонами, прежде чем начинать реализацию — решение user, не техническое
+          ограничение.
+
+      - id: component-skin-data-passthrough
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "ensureComponentSkin отдаёт найденную форму наружу — витрина не перезапрашивает то, что уже спросил сам компонент"
+        description: |
+          Продолжение `component-skin-on-demand`: `accumulatorFor` (`presets/lazy.ts:99`) уже
+          находит `PresetRecord<Form>` компонента при первом `ensure()`, но использует её только
+          чтобы построить recipe/keyframes и выбрасывает — наружу едет только готовый CSS-текст.
+          Одновременно `packages/ui/src/component-info.ts`'s `createComponentInfo` (используется
+          витриной `apps/skin`, чтобы показать форму/вариант компонента рядом с ним) делает СВОЙ
+          отдельный `presets.list(PRESET_KIND.form)` — ровно за тем же, что компонент уже спросил
+          сам через `useComponentSkin`.
+
+          Слова user, откуда взялась заявка: "мне нужно получать данные компонента, который он сам
+          запрашивает... я не хочу делать отдельно запрос на то же самое, что уже запросил сам
+          компонент". Идею слоёв предложил owner ui-продукта (не видит нюансов границ этого
+          пакета — контракт ниже уточнён по факту чтения кода, не переписан с нуля):
+
+          1. `wear/switch.ts` — `ComponentSkinSource.ensure` возвращает `Promise<{ css: string;
+             data?: unknown }>` вместо `Promise<string>`; `SkinSwitch.ensureComponentSkin` —
+             `Promise<unknown>` вместо `Promise<void>`, тот же гейт от гонки с чужим `wear()`
+             (`worn()?.name !== startedFor`), что уже есть для CSS. `unknown`, не `Form` — движок
+             ничего не знает про `engine/*`-модель формы, это на слой ниже, ломать эту границу ради
+             единственного источника не нужно.
+          2. `presets/lazy.ts` — `ComponentAccumulator` получает поле `form: PresetRecord<Form> |
+             undefined` (та же запись, что уже находит `candidates.find(...)` в строке 99, просто
+             сегодня не сохраняется); `ensure()` возвращает `{ css: generateComponentSkinCss(...),
+             data: acc.form }`.
+          3. `solid/connection.ts`, НЕ `solid/provider.tsx` — здесь, а не в `useComponentSkin`,
+             заводится сигнал `componentData: Accessor<ReadonlyMap<string, unknown>>` и обёртка
+             `ensureComponentSkin`, которая пишет `data` в карту по имени компонента как побочный
+             эффект, тем же приёмом, что уже обёрнуты `wear`/`restore` вокруг `skin.wear`/
+             `skin.restore`. Так `useComponentSkin` в `provider.tsx` не меняется вовсе — карта
+             наполняется сама на каждый вызов, который он и так уже делает.
+          4. Чистка карты — по имени наряда, не на каждый `wear()`: `setMode()` зовёт
+             `wear(current.name, { mode })` с ТЕМ ЖЕ именем — форма от режима не зависит, чистить
+             не нужно. `restore()` в `connection.ts` сегодня зовёт `skin.restore()` НАПРЯМУЮ, в
+             обход локальной обёртки `wear` — если чистку зашить внутрь `wear()`, этот путь её не
+             увидит. Нужна одна точка (`applyWorn(result)` или похожая), сверяющая старое/новое имя
+             наряда, вызываемая одинаково из `wear`, `takeOff` и `restore`.
+          5. Новый хук рядом с `useSkin` в `provider.tsx`:
+             `useComponentSkinData<T>(component: string): Accessor<T | undefined>` — читает
+             `useSkin().componentData().get(component) as T | undefined`. Имя честнее по границам
+             типов, чем `useComponentForm` (источник данных сегодня один — presets с формами, но
+             тип на этом слое — `unknown`, не `Form`).
+
+          Что НЕ входит в объём: `packages/ui` не меняется вообще — ни `useKitLife`, ни пропсы
+          компонентов, колбэк никуда не прокидывается; данные читаются по ИМЕНИ компонента снаружи,
+          под `<SkinProvider>`, а не через явную связь с конкретным инстансом. `ComponentSkinInfo`/
+          `createComponentInfo` (`packages/ui/src/component-info.ts`) не трогается этой заявкой —
+          переключение витрины `apps/skin` на `useComponentSkinData` вместо своего `presets.list`
+          отдельный шаг, не эта правка.
+
+          Осознанно не решается здесь: `undefined` в карте перегружен — "компонент ещё не спросил"
+          и "спросил, форма не нашлась" неразличимы, как и сегодня у `ComponentSkinInfo`. Richer-
+          состояние (pending/resolved) — другой объём работы, не факт что нужен; не делаю, пока не
+          спросят отдельно.
+
+          Тесты, которые меняются (проверено чтением, не только заявкой owner ui — у него в оценке
+          не хватало самого нагруженного файла): `test/lazy-component-skin.test.ts` (~8 мест вида
+          `const css = await skin.ensure(...)`, ожидающих голую строку → `.css`), `test/skin-switch-
+          component.test.tsx` (моки `ensure` возвращают строку напрямую), `test/use-component-skin.
+          test.tsx` (стаб `components.ensure` в `stubSource` тоже возвращает голую строку). `test/
+          presets-source-css.test.ts` — НЕ задет, `.ensure()` там только в комментарии, не в коде.
+
+      - id: outfit-data-passthrough
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "Тот же passthrough — но для наряда целиком (Outfit+Palette), не для одного компонента"
+        description: |
+          Прямое продолжение `component-skin-data-passthrough` — тот же довод, тот же приём, другой
+          уровень. Слова user: "мы можем отдавать аутфит инфу в том же флоу, мне нужна полная, я
+          сейчас делаю витрину и там нужна инфа и про аутфит, и про компоненты, компоненты мы сделали
+          а вот аутфит нет". "В том же флоу" — буквально: не новый метод `SkinSource`, не отдельный
+          сигнал мимо `ensureComponentSkin`, а то же самое действие, на котором уже висит `data`
+          компонента.
+
+          Где сегодня теряется. `presets/lazy.ts`'s `contextFor(outfitName)` УЖЕ фетчит и `Outfit`, и
+          подходящую `Palette` (`client.get(PRESET_KIND.outfit, ...)`  + `client.list(PRESET_KIND.
+          palette)`, поиск по `outfit.state.palette`) — один раз на наряд, кешируется `context`-
+          промисом. Но возвращает наружу (`OutfitContext`) только РАСПАКОВАННЫЕ `outfit.state`/
+          `palette.state` — сами записи (`PresetRecord<Outfit>`/`PresetRecord<Palette>`, с `name`/
+          `label`/`id`) нужны `assemble()` только для чтения содержимого и выбрасываются сразу после.
+          Ровно тот же паттерн, что был у `form` до `component-skin-data-passthrough`.
+
+          Контракт (тот же слой, что и у component-версии, продолжает её типы, не переизобретает):
+          1. `presets/lazy.ts` — `OutfitContext` получает два новых поля: `outfitRecord: PresetRecord
+             <Outfit>`, `paletteRecord: PresetRecord<Palette>` (те самые, что `contextFor` уже
+             получает от `client.get`/`client.list`, до `.state`-распаковки). `ensure()` довызывает
+             `contextFor(outfitName)` ПОСЛЕ `accumulatorFor` (тот уже вызвал его с тем же именем на
+             синхронном шаге внутри себя — `trackedOutfit` совпадает, это попадание в кеш, не второй
+             сетевой фетч) и кладёт `{ outfit: ctx.outfitRecord, palette: ctx.paletteRecord }` в
+             третье поле возврата.
+          2. `wear/switch.ts` — `ComponentSkinSource.ensure()` возвращает `{ css, data?, outfit? }`
+             (третье поле рядом с уже существующим `data`, тот же `unknown`, та же причина: этот
+             слой не знает про `Outfit`/`Palette` как тип). `SkinSwitch.ensureComponentSkin` — было
+             `Promise<unknown>` (голый `data`), становится `Promise<{ data?: unknown; outfit?:
+             unknown }>` — раз теперь два независимых куска, отдавать их одним неразличимым `unknown`
+             как раньше уже нельзя, значит меняется и этот контракт, не только внутренний.
+          3. `solid/connection.ts` — второй сигнал рядом с `componentData`: `outfitData: Accessor
+             <unknown>` (ЕДИНСТВЕННОЕ значение, не карта — наряд один на соединение, не по имени).
+             Обёртка `ensureComponentSkin` пишет туда `result.outfit` тем же приёмом (гейт по имени
+             наряда до/после await — тот же, что уже защищает `componentData` от того же класса
+             гонки). `applyWorn` чистит ОБА сигнала при смене имени наряда, не только `componentData`.
+          4. `solid/provider.tsx` — `useOutfitData<T>(): Accessor<T | undefined>`, рядом с
+             `useComponentSkinData`, тем же приёмом (`createMemo` поверх `useSkin().outfitData()`).
+
+          Что НЕ входит в объём: второй сетевой фетч наряда/палитры отдельно от `ensureComponentSkin`
+          не заводится — если ни один компонент на странице ни разу не позвал `useComponentSkin`,
+          `outfitData` останется `undefined` (та же ленивая природа, что и у `componentData`, и у
+          самого CSS — `component-skin-on-demand`). Явный отдельный «дай мне наряд, не спрашивая
+          компонент» — не эта заявка, отдельный кейс, если понадобится.
+
+          Тесты: `test/lazy-component-skin.test.ts` (новые кейсы на `outfit`/`palette` в возврате
+          `ensure()`, по образцу уже добавленных на `data`), `test/skin-switch-component.test.tsx`
+          (моки `ensure` меняют форму ответа, `ensureComponentSkin` теперь возвращает объект, не голый
+          `data`), `test/use-component-skin.test.tsx` (стаб источника туда же).
+
+      - id: component-skin-cls-on-first-mount
+        type: bug
+        status: Backlog
+        priority: Medium
+        milestone: null
+        name: "component-skin-on-demand — заметный CLS на первом монтировании компонента, решение не выбрано"
+        description: |
+          Найдено architect'ом при живом замере перформанса витрины (`apps/skin`, `/showcase/table`)
+          после `component-skin-on-demand`+`component-skin-wiring`. CLS ~2.7 (порог «плохо» — 0.25,
+          то есть на порядок выше) — и это НЕ артефакт дев-сервера: замерено дважды, `vite dev`
+          (LCP 3018мс) и `vite preview` прод-сборки (LCP 1632мс, дев-режим дал почти половину LCP)
+          — LCP от бандлинга исправился вдвое, а CLS не сдвинулся вовсе (2.69 → 2.70). Раз число
+          не меняется между дев/прод — дело не в раздаче файлов, похоже на прямое следствие самой
+          механики: компонент рисуется ДО того как долетел и допечатался его CSS
+          (`ensureComponentSkin` асинхронный), раскладка (`collapsible`-секции, `radio-group`,
+          `carousel`, сама `TABLE` в демо) досчитывается уже после первой отрисовки.
+
+          Слова user (тут же, по итогам замера): "я думаю мы позже это обыграем, пока это не
+          страшно, главное что меха работает как надо... просто опиши что кейс есть, но решение
+          обсудим на месте" — то есть НЕ регрессия, которую надо чинить сейчас, а известная цена
+          принятого раньше компромисса (`component-skin-on-demand`: "между тем что компонент будет
+          без своего скина пока он не прилетит, и тем что всё грузится разом — я выбираю первое"),
+          её масштаб теперь просто измерен и назван.
+
+          Решение НЕ выбрано и не проектируется этим пунктом — только заявка, что кейс есть и он
+          заметный. Направление для будущего обсуждения (не рецепт): возможно, `base`-стили,
+          влияющие на размеры/раскладку, стоит прикладывать синхронно до первой отрисовки, а лениво
+          оставлять только то, что не двигает layout (цвет, тень и т.п.) — но это гипотеза для
+          разговора на месте, не решённый архитектурный шаг.
+
+      - id: skin-provider-on-ready
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "SkinProvider — onReady отдаёт промис restore() коду вне дерева Solid"
+        description: |
+          Найдено user на витрине `apps/skin`: `variantsOf(component)` без явного имени наряда
+          читает текущий наряд синхронно (`readWorn()` → атрибут `data-skin` на корне), а
+          роутер-лоадер `pages/showcase/component/route.tsx` зовёт её раньше, чем `SkinProvider`
+          успевает восстановить запомненный наряд (`skin.restore()` в `onMount`, асинхронно) —
+          атрибута ещё нет, `variantsOf` тихо отдаёт `[]`.
+
+          Слова user: "variantsOf он отдает варианты компонента, если не передать аутфит то он
+          вернет текущий... у нас сейчас баг. route.tsx отрабатывает раньше загрузки самого
+          аутфита и возвращает пустой. можешь сделать что бы он выстреливал когда аутфит загружен?"
+
+          Причина гонки — не в самой `variantsOf` (`presets/variants.ts`, не тронута), а в том, что
+          вызывающему (роутер-лоадер TanStack Router, выполняется ДО рендера страницы, вне дерева
+          Solid) нечего ждать: `useSkin()`/реактивный `worn()` ему физически недоступны.
+
+          Сделано: `SkinProvider` (`solid/provider.tsx`) принимает необязательный `onReady?:
+          (ready: Promise<SkinWorn | null>) => void` — зовётся один раз на монтировании с промисом
+          `skin.restore()` (отказ гасится в `null`, тем же значением, которым `worn()` отвечает на
+          «ничего не надето» — причину отказа конкретного источника провайдер не имеет права
+          разбирать, тем же доводом, что и существующий `console.debug`). Приложение сохраняет этот
+          промис в модульную переменную и авейтит её в лоадере перед вызовом `variantsOf` — правка
+          на стороне `apps/skin` (`app/providers/skin.tsx`+`route.tsx`), не входит в этот пакет.
+
+          Тесты: `test/skin-provider.test.tsx` — `onReady()` отдаёт промис, резолвящийся в
+          `{name, mode}` восстановленного наряда; отдельный кейс на отказ `restore()` → `onReady`
+          резолвится в `null`, не реджектится.
+
+  - category: Структура пакета
+    items:
+      - id: engine-folder-reshape
+        type: refactor
+        status: Done
+        priority: High
+        milestone: null
+        name: Внутренние папки собраны под src/engine/, публичная поверхность пересмотрена
+        description: |
+          Означает: корень — тонкий барель, ~18 внутренних папок нет как отдельных сиблингов;
+          экспорт очищен от шестерёнок без своего глагола (семена/шкалы/адресные селекторы),
+          оставлено то, что реально настраивает движок или названо контрактом для чужого кода.
+
+  - category: "Механика дерева переехала в packages/assembly — снять свою копию"
+    items:
+      - id: wait-for-assembly-drop-skin-devdependency
+        type: decision
+        status: Done
+        priority: High
+        milestone: null
+        name: "Блокер снят: `packages/assembly`'s `assembly-drop-skin-devdependency` закрылся первым"
+        description: |
+          `baseAssemblyOf`+`scopedPath` (разворот `repeat`/`recur` по данным) переехали в
+          `packages/assembly/src/engine/expand.ts` — там же теперь и настоящие `AssemblyTree`/
+          `AssemblyElement`/`resolveDataBinding`, не копии. Живой продовый путь
+          (`packages/ui/src/component-registry.ts` → `./passport.js` → этот пакет) пока НЕ
+          переключён — так и должно быть, переключение потребителей ниже, не раньше.
+
+          Architect эмпирически проверил (2026-09-12, `packages/assembly/ROADMAP.yaml`'s
+          `verified-real-cycle-with-skin`): реальная зависимость этого пакета на
+          `@web-core/assembly` НА ТОТ МОМЕНТ образовывала цикл с `assembly → @web-core/skin`
+          (`devDependencies`, type-only) — `pnpm build` из корня падал жёстко (`NX Could not
+          execute command because the task graph has a circular dependency`).
+
+          Проверено заново (2026-09-12, тем же владельцем этого пакета): `assembly`'s
+          `assembly-drop-skin-devdependency` в `packages/assembly/ROADMAP.yaml` уже стоит `Done`,
+          `@web-core/skin` в `packages/assembly/package.json` вычищен целиком (только упоминания
+          в комментарии-заметке `//devDependencies`, ноль реальных строк). Блокер снят —
+          добавлена реальная `"@web-core/assembly": "workspace:*"` в `dependencies` этого пакета,
+          `pnpm install` и `pnpm build` из корня прошли без цикла (см. лог ниже).
+
+      - id: switch-to-real-assembly-types
+        type: feature
+        status: Done
+        priority: High
+        milestone: null
+        name: "`output.ts`'s `BaseAssemblyElement/Content/Node/Tree` — снесено, взяты настоящие из `@web-core/assembly`"
+        description: |
+          `packages/skin/src/engine/passport/assembly/output.ts` объявлял `BaseAssemblyTree`
+          (и `isContentNode`) — структурная копия `AssemblyElement`/`AssemblyContent`/
+          `AssemblyNode`/`AssemblyTree`/`isContent` из `@web-core/assembly`, независимо
+          продублирован.
+
+          Сделано: `output.ts` удалён целиком. `engine/passport/assembly/index.ts` реэкспортирует
+          настоящие `AssemblyContent as BaseAssemblyContent` / `AssemblyElement as
+          BaseAssemblyElement` / `AssemblyNode as BaseAssemblyNode` / `AssemblyTree as
+          BaseAssemblyTree` / `isContent as isContentNode` прямо из `@web-core/assembly` — ИМЕНА
+          на границе пакета (`./editor`, и через неё `packages/ui/src/passport.ts`, генерируемый
+          файл) не изменились ни на бит, изменилось только то, ЧЕМУ они теперь буквально равны.
+          Внутри `expand.ts` используются настоящие имена (`AssemblyElement`/`AssemblyNode`/
+          `AssemblyTree`/`isContent`) без алиасов — там это не публичный контракт.
+
+          Стык, который это чинит по-настоящему: `packages/ui/src/component-registry.ts:133` —
+          `(sketch as AssemblyTree)`, сырой TS-каст, раньше нужный, потому что типы совпадали
+          СТРУКТУРНО, а не потому что один настоящий. Теперь `baseAssemblyOf`'s возвращаемый тип —
+          буквально `AssemblyTree` того же импорта, каст стал избыточным (но не убран — это не
+          работа этого пакета, `packages/ui`-owner проверяет и убирает каст сам, когда дойдёт
+          очередь).
+
+      - id: switch-to-real-data-binding
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "`binding.ts`'s рантайм — на настоящий `resolveDataBinding`/`isDataBinding`/`DynamicValue`/`DispatchAction`"
+        description: |
+          `binding.ts` резолвил JSON Pointer ВРУЧНУЮ — `@web-core/assembly`'s `tree.ts` делает то
+          же самое через `fast-json-patch` (`getValueByPointer`), уже проверенный вендор, не
+          рукописный разбор `~1`/`~0`.
+
+          Сделано: ручная реализация `resolveDataBinding` в `binding.ts` удалена, заменена прямым
+          `export { resolveDataBinding } from "@web-core/assembly";`.
+
+          НЕ тронуты `paths.ts`/`nodes.ts`'s generic-обёртка (`DataBinding<Data, AtRoot>`,
+          `Paths<T>`/`ArrayPaths<T>`, `isDataBinding` — генерик-версия) — типовая проверка
+          `bind`/`repeat.path` на этапе автора компонента против его io-схемы, настоящая ценность
+          ЭТОГО пакета, которой у плоского `Record<string, string>` `@web-core/assembly` нет.
+          Генерик-версия `isDataBinding` осталась своя (не реэкспорт): её type predicate сужает до
+          `DataBinding<Data, AtRoot>` — если бы взяли реальную (не генерик) версию, предикат сузил
+          бы `path` до голого `string`, потеряв конкретный union путей ниже по коду.
+
+      - id: baseAssemblyOf-becomes-thin-reexport
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "`expand.ts`'s `baseAssemblyOf`/`scopedPath` — тонкий реэкспорт `@web-core/assembly`, не вторая копия алгоритма"
+        description: |
+          После `switch-to-real-assembly-types`/`switch-to-real-data-binding` у `expand.ts` этого
+          пакета и `engine/expand.ts` `@web-core/assembly` — один и тот же алгоритм на одних и тех
+          же типах, продублированный текстом. План — заменить телом этого пакета на реэкспорт/
+          тонкую обёртку вокруг `@web-core/assembly`'s `baseAssemblyOf` (типизированный вход этого
+          пакета — `PassportAssembly<Part, Registry, Data, AtRoot>` с generic-проверкой пути, —
+          стирается в структурный `AssemblyTemplate`, которого ждёт настоящая функция, тем же
+          приёмом, каким `@web-core/assembly`'s `engine/expand.ts` уже сегодня стирает generic до
+          `unknown`).
+
+          НАЙДЕН БЛОКЕР (2026-09-12, при попытке сделать этот пункт), план выше на нём не учёл
+          ОДНО: второй параметр (`assembly`/шаблон) действительно стирается структурно без
+          проблем, но ПЕРВЫЙ параметр — нет. Настоящая `baseAssemblyOf` (`@web-core/assembly`)
+          принимает `passport: ReadablePassport`, который требует `genus: ComponentGenus`
+          (required) и `parts: readonly { name; accepts? }[]`. У `ComponentPassport` этого пакета
+          (`engine/passport/form/passport.ts`) `genus` не существует ВООБЩЕ (это понятие
+          `PassportAdmission`, свойство КАНДИДАТА на допуск в часть, а не атрибут самого паспорта),
+          и `PassportPart` (`form/part.ts`) не несёт `accepts` (это отдельный `PassportPartAdmission`,
+          не смешанный с `PassportPart` наследованием/интерсекцией). `ComponentPassport` НЕ
+          структурно совместим с `ReadablePassport` — просто `as unknown as ReadablePassport`
+          заглушит компилятор, но `genus`/`accepts` в рантайме будут `undefined` там, где
+          `ReadablePassport` их требует как required.
+
+          Смягчение: сама функция `baseAssemblyOf` (тело в `@web-core/assembly/engine/expand.ts`)
+          НЕ читает ни `passport.genus`, ни `passport.parts`/`accepts` — только `.component`,
+          `.anatomy.keys()`, `.root`. Рантайм-дыры без реального обращения к полям не будет, но
+          TS проверяет по ОБЪЯВЛЕННОМУ типу параметра, не по факту использования внутри тела.
+
+          РЕШЕНО architect'ом (2026-09-12, не одиночным предположением — сверено чтением кода):
+          не фейковый `genus`, не ослабление контракта `@web-core/assembly`. `genus`/`accepts`
+          физически СУЩЕСТВУЮТ уже сегодня — просто не на `ComponentPassport`, а на
+          `PassportEditorInfo` (`packages/skin/src/editor/types.ts:47` — `genus:
+          PassportComponentGenus`, ровно тот же тип, на который `ReadablePassport.genus:
+          ComponentGenus` ссылается через `passport-read.ts`'s алиас; `:31` —
+          `PassportPartEditorInfo.accepts?: readonly PassportAdmission[]`, тот же тип, что
+          `ReadablePart.accepts`). Это не совпадение — паспорт этого пакета НАРОЧНО режется на
+          срез рантайма (`ComponentPassport`) и срез редактора (`PassportEditorInfo`, см.
+          `passport-two-slices` выше в этом же роадмапе: «means, сборки и правило вложенности
+          живут в ./editor»), и `genus`/`accepts` — ровно то, что уехало во второй срез.
+
+          Прецедент уже живёт в этом же файле: `packages/ui/src/component-registry.ts`'s
+          `readable()` (строки 57-85) УЖЕ строит `genus: editorInfo.genus`/`accepts:
+          editorInfo.parts[part.name]?.accepts` для `Registry` — тем же самым мержем
+          `ComponentPassport`+`PassportEditorInfo`, который нужен и здесь. `instanceOf`
+          (строка 114) уже ЗОВЁТ `provider.editorInfoOf(component)` (строка 121) — сегодня только
+          ради `.assemblies`, остальное выбрасывает. Единственный живой вызов `baseAssemblyOf` во
+          всём репозитории (сверено `grep` — больше нигде с реальными аргументами не зовётся) —
+          вот этот, и всё нужное для моста УЖЕ в его руках, ничего нового доставать не надо.
+
+          Значит: тонкая обёртка этого пакета (`baseAssemblyOf-becomes-thin-reexport`) принимает
+          ВТОРЫМ параметром `editorInfo: PassportEditorInfo` (не только `passport:
+          ComponentPassport`), строит `ReadablePassport` тем же мержем, что `readable()`, и уже
+          его передаёт настоящей функции `@web-core/assembly`. Это меняет публичную сигнатуру
+          `baseAssemblyOf` этого пакета — единственный реальный вызывающий (`component-
+          registry.ts`) правится СИНХРОННО с этим пунктом, не отдельным заходом позже: он и так
+          уже держит `editorInfo` в скоупе на соседней строке, правка мелкая и мгновенная, разводить
+          её на «сначала здесь, потом когда-нибудь у ui» только развело бы момент, когда сигнатура
+          этого пакета не соответствует единственному потребителю.
+
+          СДЕЛАНО (2026-09-12) — половина этого пакета. `expand.ts` переписан целиком: `grow`/
+          `growAll`/`scopeTemplate`/`nameFor`/`addressOf`/`propsOf`/`MAX_ASSEMBLY_DEPTH` удалены,
+          `baseAssemblyOf` теперь — тонкая функция `(passport, editorInfo, assembly, address?,
+          data?) → AssemblyTree`: строит `ReadablePassport` мержем (`readablePassportOf`, тот же
+          приём, что `readable()`), стирает `assembly` до `AssemblyTemplate` (`as unknown as`,
+          структурная эрозия generic-типа, как и предполагал план выше) и зовёт настоящую функцию
+          `@web-core/assembly`. `scopedPath` — прямой `export { scopedPath } from
+          "@web-core/assembly"` (была буквально идентична). `PassportEditorInfo` импортирован
+          `import type` из `../../../editor/types.js` — цикл файлов (`editor/types.ts` типами
+          ссылается на `engine/passport/assembly/index.ts`, а тот теперь на `expand.ts`, а тот на
+          `editor/types.ts`) есть на уровне исходников, но ОБЕ стороны только `import type`
+          (`editor/types.ts` весь состоит из одних интерфейсов, ноль рантайма) — прецедент уже
+          живёт в этом же пакете (`engine/coverage/{index,component}.ts` уже делают ровно такой же
+          type-only импорт из `editor/types.ts`), не изобретение с нуля.
+
+          Тесты этого пакета (`passport-assembly`/`repeat-field`/`index-path`/`assembly-depth-
+          guard.test.ts`) правил синхронно — все звали `baseAssemblyOf(passport, assembly, …)`
+          без среза редактора, теперь строят `editorInfo` через `defineEditorInfo` и передают его
+          вторым аргументом. `pnpm run lint`/`typecheck`/`test` (141/141)/`build` — все зелёные;
+          `pnpm build` из корня — `@web-core/assembly:build`/`@web-core/skin:build` зелёные, цикла
+          нет (падают только предсуществующие `mcp`/`ewc`/`reference`/`skin-app`, из-за
+          незакоммиченного `./tree`-разрыва в `apps/skin`, не эта работа).
+
+          НЕ СДЕЛАНО (снято следующим пунктом, `revert-editorInfo-merge-now-unnecessary`) —
+          вторая половина, чужая зона, оказалась НЕ НУЖНА. `packages/ui/src/component-
+          registry.ts`'s `instanceOf` (строка 125) звал `baseAssemblyOf(passport, assembly,
+          undefined, data)` — старой сигнатурой, и план требовал править ЕГО (плюс 32 тестовых
+          файла кита) под пятиаргументную форму. Разбор architect'а после ревью
+          `baseAssemblyOf-passport-type-too-wide` (`@web-core/assembly/ROADMAP.yaml`, Done): весь
+          мёрж с `editorInfo` был не нужен ни этому пакету, ни `packages/ui` — см. пункт ниже.
+
+      - id: revert-editorInfo-merge-now-unnecessary
+        type: bug
+        status: Done
+        priority: High
+        milestone: null
+        name: "Откатить `editorInfo`-мёрж в `expand.ts` — `@web-core/assembly` больше не просит `genus`/`accepts`"
+        description: |
+          `baseAssemblyOf-becomes-thin-reexport` (выше) добавил `editorInfo: PassportEditorInfo`
+          вторым параметром `baseAssemblyOf` этого пакета и мёрж `readablePassportOf`
+          (`ComponentPassport`+`PassportEditorInfo` → `ReadablePassport`) — единственная причина
+          была: настоящая функция `@web-core/assembly` требовала `ReadablePassport` целиком
+          (`genus`/`accepts` required). Причина СНЯТА: `baseAssemblyOf-passport-type-too-wide`
+          (`@web-core/assembly/ROADMAP.yaml`, статус Done, architect проверил лично — 39/39 тестов,
+          `tsc --strict` на изолированном срезе) сузил параметр настоящей функции до
+          `GrowablePassport` (`component`/`anatomy.keys()`/`root` — три поля). `ComponentPassport`
+          этого пакета уже структурно удовлетворяет этому срезу БЕЗ мержа — сверено architect'ом
+          эмпирически, не на словах.
+
+          Откат, буквально:
+          1. `expand.ts` — удалить `readablePassportOf` (весь мёрж), убрать `editorInfo` из
+             сигнатуры и тела `baseAssemblyOf`, вернуть `(passport: ComponentPassport, assembly:
+             PassportAssembly, address?: string, data?: unknown) => AssemblyTree`, тело —
+             `return baseAssemblyOfReal(passport, assembly as unknown as AssemblyTemplate, address,
+             data);` (тот же приём стирания `assembly`, что уже был). Убрать `import type {
+             PassportEditorInfo } from "../../../editor/types.js"` — заодно снимает файловый цикл
+             `expand.ts` → `editor/types.ts` → `.../assembly/index.ts` → `expand.ts`, который
+             `baseAssemblyOf-becomes-thin-reexport` завёл ради ненужного в итоге мержа (был назван
+             там же безопасным как type-only — теперь его нет вовсе, безопаснее не бывает).
+          2. Тесты (`passport-assembly`/`repeat-field`/`index-path`/`assembly-depth-guard.test.ts`)
+             — откатить обратно к вызову `baseAssemblyOf(passport, assembly, …)` без
+             `editorInfo`/`defineEditorInfo`-фикстур, которые были добавлены именно под мёрж.
+          3. ПРОВЕРИТЬ (это условие закрытия пункта, не «и так сработает»): после отката —
+             `pnpm --filter @web-core/skin lint`/`typecheck`/`test`/`build` зелёные (как и было
+             ДО мержа), И ОТДЕЛЬНО `pnpm --filter @web-core/ui typecheck`/`build` — раньше
+             (`switch-consumers-to-assembly-home`) красные (`TS2740` в 33 файлах) — должны стать
+             зелёными БЕЗ единой правки в `packages/ui`: `component-registry.ts` и все 32 тестовых
+             файла кита уже сегодня зовут старой 4-аргументной формой, которая совпадёт с
+             откаченной сигнатурой этого пакета один в один. Если после отката `packages/ui`
+             всё ещё красный — откат сделан не полностью, не считать пункт закрытым.
+
+          СДЕЛАНО (2026-09-12). `expand.ts` — `readablePassportOf`/`editorInfo` убраны целиком,
+          сигнатура вернулась к `(passport: ComponentPassport, assembly: PassportAssembly,
+          address?, data?) => AssemblyTree`, тело — `baseAssemblyOfReal(passport, assembly as
+          unknown as AssemblyTemplate, address, data)`; `passport` теперь передаётся БЕЗ каста —
+          `ComponentPassport` структурно удовлетворяет `GrowablePassport` (3 поля), каст нужен
+          только на `assembly` (стирание generic-шаблона, как и было). Импорт `PassportEditorInfo`
+          из `../../../editor/types.js` убран — файловый цикл, который заводил предыдущий заход,
+          пропал вместе с причиной. Все 4 тестовых файла (`passport-assembly`/`repeat-field`/
+          `index-path`/`assembly-depth-guard.test.ts`) откачены к вызову `baseAssemblyOf(passport,
+          assembly, …)` без `editorInfo`/`defineEditorInfo`.
+
+          Проверено по всем трём пунктам условия закрытия: `pnpm --filter @web-core/skin lint`/
+          `typecheck`/`test` (141/141)/`build` — зелёные. `pnpm --filter @web-core/ui typecheck` —
+          зелёный БЕЗ единой правки в `packages/ui` (было красным на `TS2740` в 33 файлах ДО этого
+          отката). `pnpm build` из корня — `@web-core/assembly:build`/`@web-core/skin:build`/
+          `@web-core/ui:build` все зелёные, цикла нет; падают только предсуществующие `mcp`/
+          `ewc`/`reference`/`skin-app` (разрыв `./tree` в `apps/skin`, не эта работа).
+
+      - id: switch-consumers-to-assembly-home
+        type: decision
+        status: Rejected
+        priority: Low
+        milestone: null
+        name: "`packages/ui` — НЕ нужно трогать (отменено разбором, оставлено для истории)"
+        description: |
+          Прошлая версия этого пункта требовала владельцу `packages/ui` вручную догонять
+          пятиаргументную сигнатуру `baseAssemblyOf` в `component-registry.ts` и заводить
+          `editorInfo`-фикстуры для 32 тестовых файлов кита — реального объёма работы, найденного
+          самим владельцем `packages/ui` при попытке собрать пакет.
+
+          Отменено: `revert-editorInfo-merge-now-unnecessary` (выше) убирает саму причину, по
+          которой сигнатура вообще менялась — `packages/ui` не нужно трогать НИ СТРОКОЙ, все 33
+          файла уже сегодня зовут ровно ту форму, к которой возвращается этот пакет. Пункт закрыт
+          не выполнением, а тем, что задача, которую он описывал, перестала существовать —
+          оставлен в роадмапе как факт (что предполагалось, почему не понадобилось), не удалён
+          молча.
+
+  - category: Открытое
+    items:
+      - id: agent-tooling-by-the-book
+        type: feature
+        status: Open
+        priority: High
+        milestone: null
+        name: Инструмент для агента, сделанный по правилам, а не «отдать всё, что нашлось»
+        description: |
+          Означает: набор ручек, где каждая отвечает на ОДИН вопрос и отдаёт ровно то, что у неё
+          спросили. Сегодня не так: ручка отдаёт всё, что нашла про предмет, и растёт вместе с
+          предметом. Разбор, почему это дефект устройства, а не «данных много» — FAQ.md.
+
+          Правила, которые задают целевое состояние (спека MCP и практика её применения, сверено
+          2026-09-08):
+
+          1. Ручка атомарна: одно понятие — один адрес. Паспорт отдаёт паспорт; анатомия, сборки,
+             ио и слайс редактора — свои ручки. Смешивать пять понятий под одним именем нельзя,
+             даже если все пять лежат рядом в памяти.
+          2. У ответа есть предел. В каркасе — верхняя граница длины (порядок 25 000 символов,
+             ровно столько же в токенах режет клиент на своей стороне). Ответ длиннее не
+             отдаётся молча: он обрезается ЯВНО, с пометкой, что обрезано, и с подсказкой, каким
+             параметром сузить запрос.
+          3. Список отдаётся страницей. limit с разумным умолчанием (20–50), курсор, признак
+             «есть ещё». Не «весь список, потому что он пока короткий».
+          4. Большое отдаётся ссылкой, не телом. В спеке для этого есть resource_link: ручка
+             возвращает URI, клиент читает его, когда данные реально понадобились. Полотно CSS —
+             ровно этот случай.
+          5. Сериализация без украшений: компактный JSON, а не с отступами. На нашем ответе
+             отступы стоили 58% длины. Дублирование строки и structuredContent при этом ОСТАЁТСЯ —
+             оно требуется спекой ради совместимости, и вычёркивать его нельзя.
+
+          Работа лежит в каркасе (packages/mcp: предел ответа, страницы по умолчанию, ресурсы) и в
+          зоне-потребителе (apps/skin/.mcp: разрезать ручки по понятиям). Здесь пункт стоит
+          потому, что предмет у этих ручек — паспорт, анатомия, сборки и рецепт, то есть понятия
+          этого пакета: пока их границы размыты в инструменте, размыты они и для того, кто им
+          пользуется.
+
+      - id: contrast-consumer
+        type: feature
+        status: Open
+        priority: Low
+        milestone: null
+        name: Потребитель для skinContrast
+        description: |
+          Означает: витрина/редактор, реально показывающие предупреждения о читаемости —
+          механика готова, вызывающего пока нет.
+
+      - id: editor-plugin-surface
+        type: feature
+        status: Open
+        priority: Low
+        milestone: null
+        name: Формальный плагин для будущего редактора скина
+        description: |
+          Означает: когда появится редактор палитр/форм/нарядов, то, что ему реально понадобится
+          из сегодняшних внутренних шестерёнок (семена, адресные селекторы), оформляется своим
+          плагином — не раскрывается заранее вслепую.
+          Повод настал — см. `tool-export-surface` ниже: не отдельная задача «для редактора», а тот
+          же самый повод, только формулировка сменилась с «когда появится UI» на «когда появится
+          агент» — принцип «агент = юзер» (architect+user, `packages/neurobox/ROADMAP.yaml`,
+          `tool-mechanic-design-agreed`) значит это ОДНА поверхность, не две параллельные.
+
+  - category: "Тулы для агента — toolDefinition() через @web-core/neurobox/tool"
+    items:
+      - id: tool-export-surface
+        type: feature
+        status: Done
+        priority: Medium
+        milestone: null
+        name: "Операции пакета — голой функцией И toolDefinition()-обёрткой, обе публичные"
+        description: |
+          Контекст (architect+user, 2026-09-13/14): трёхслойное деление меха/пакет/апп-зона
+          (`packages/neurobox/ROADMAP.yaml`, `tool-mechanic-design-agreed`) — меха (обязательный
+          `access`, `toolDefinition()`) готова в `@web-core/neurobox/tool`. Этот пакет — первый
+          реальный потребитель, не единственный будущий.
+
+          Означает: операции над своими же понятиями (`Palette`/`Form`/`Outfit`/`Assembly` — словарь
+          пакета, не МСИПИ-зоны) — проверка одной палитры/формы, сборка наряда, что ещё сочтёт
+          нужным владелец по домену пакета — экспортируются ДВОЯКО: обычной функцией (для прямого
+          вызова, без протокола) и `toolDefinition()`-обёрткой вокруг неё (для того, кто решит
+          открыть её агенту). Пакет не решает, КОМУ это видно — только честно описывает СВОЙ
+          вход-выход. Какой конкретно набор операций и в какой форме (один подпуть на всё, или
+          россыпью) — решает владелец по факту домена, не переносится с готового списка снаружи:
+          пакет не должен зеркалить чужую зону, у него своё понимание собственных возможностей.
+
+          НЕ входит в объём: кто и как регистрирует эти тулы для агента (апп-зона,
+          `app-zone-tool-registry` в `packages/neurobox/ROADMAP.yaml`, отдельный вопрос) — этот
+          пакет останавливается на экспорте, дальше не лезет.
+
+          СДЕЛАНО (2026-09-14). Новый подпуть `./tools` (`src/tools/index.ts`+`schemas.ts`,
+          зарегистрирован в `vite.config.ts`/`package.json`'s `exports`): четыре операции —
+          `checkOutfitTool`/`assembleOutfitTool`/`generateSkinCssTool`/`skinGapsTool`, все
+          `access: "read"`, голые функции (`checkOutfit`/`assemble`/`generateSkinCss`/`skinGaps`)
+          реэкспортированы рядом без изменений.
+
+          НАЙДЕН БЛОКЕР при проектировании схем, не предвиденный формулировкой пункта: все четыре
+          голые функции реально принимают `PassportLookup`/`Iterable<ComponentPassport>` —
+          `ComponentPassport.anatomy` несёт функции (`keys()`/`build()` от `@zag-js/anatomy`'s
+          `createAnatomy()`), это НЕ JSON, агент не может прислать паспорт телом вызова. Решено (не
+          в одиночку молча — записано и в FAQ.md, и здесь): `lookup`/`passports` НЕ входят в
+          `inputSchema` ни одного тула — это знание живого реестра компонентов ПРИЛОЖЕНИЯ
+          (`packages/ui/src/component-registry.ts`), не значение, которое агент выбирает за один
+          вызов. Тот же класс параметра, что второй аргумент `execute(input, context)` у
+          `@tanstack/ai` — контракт описывает то, что реально формулирует агент (`Outfit`/
+          `Palette`/`Form`/`Skin` — записи `presets`, не код кита), связывание с реальным `lookup`
+          остаётся заботой `.server(execute)`, которого этот заход НЕ строит (сам `app-zone-tool-
+          registry` по-прежнему не решается здесь). Разбор — FAQ.md, «Тулы для агента (`./tools`):
+          паспорт наружу не идёт».
+
+          Из пяти изначально предложенных операций `skinContrast` ОТЛОЖЕН, не пятая заодно: у
+          механики нет ни одного потребителя (`contrast-consumer`, Open, ниже) — заводить тул под
+          операцию, которую никто не зовёт, было бы расширением вслепую.
+
+          Схемы (`schemas.ts`) — каждая аннотирована `z.ZodType<T>` реальным TS-типом движка
+          (`Outfit`/`Palette`/`Form`/`Skin`/`LookParts`/`OutfitFlaw`/`OutfitReport`/`Assembled`/
+          `SkinGap`/`ValueVocabulary`, плюс их вложенные формы — `SlotRecipe`/`StyleObject`/
+          `LocalStyle`/`SkinVariables`/`DimensionSeed` и т.д.) — компилятор отказывается собрать
+          пакет при расхождении формы хоть на одно поле, не `z.any()`/`z.unknown()` наугад.
+          Рекурсивные (`StyleObject`/`LocalStyle`/`PartStyle`) — через `z.lazy()`, тот же приём, что
+          уже есть в репозитории (`packages/ui/src/shared/data/fields.ts`).
+
+          Побочный технический найденный при сборке: `.d.ts`-эмит (`rollup-plugin-dts`) не может
+          назвать инстанцированный `ToolDefinition<...>` без явной аннотации константы (тип живёт в
+          `@web-core/neurobox`'s собственном вложенном `node_modules/@tanstack/ai`, не в поднятом) —
+          решено явной аннотацией `ToolDefinition<typeof Input, typeof Output, "name">` на каждом
+          `export const`, `@tanstack/ai` заведён прямой `dependencies` этого пакета (его типы теперь
+          на публичной границе `.d.ts`, версия `^0.54.0` — та же, что у `@web-core/neurobox`).
+
+          Новые зависимости `dependencies`: `@tanstack/ai`, `@web-core/io` (`z`, по канону —
+          `io-owns-zod-boundary`, zod напрямую не заведён), `@web-core/neurobox` (`toolDefinition`/
+          `accessOf`).
+
+          Тесты — `test/tools.test.ts` (15 кейсов, новых): `access: "read"` на всех четырёх тулах
+          (`accessOf()`); `check_outfit`/`generate_skin_css`/`skin_gaps` — реальный вызов голой
+          функции (те же фикстуры, что `keyframe-collision.test.ts`/`generate-component-skin-
+          css.test.ts`), результат парсится `outputSchema` без правки; `assemble_outfit` — выход
+          сверен типизированным литералом `Assembled` (не живым вызовом: `assemble()` бросает
+          `OutfitRefused`, пока палитра не закрывает ВЕСЬ `VOCABULARY`, комбинаторно большой —
+          заводить фикстуру-палитру на сотню ролей ради одного теста не стал); три негативных
+          кейса (`OutfitSchema`/`LookPartsSchema`/`AssembledSchema` реально отвергают неполный/
+          неверный вход).
+
+          Проверено: `pnpm run lint`/`typecheck`/`test` (160/160, было 141) — зелёные, `pnpm run
+          build` — `dist/tools.js`+`dist/tools.d.ts` собираются. `pnpm build` из корня — `@web-core/
+          skin`/`@web-core/assembly`/`@web-core/ui`/`@web-core/neurobox`/`@web-core/io` все зелёные,
+          цикла нет; падают только предсуществующие `@web-core/ewc` (`UNRESOLVED_IMPORT`) и
+          `@web-core/reference` (`MISSING_EXPORT`) — не эта работа и не эта зона.
+
+log:
+  - id: tool-export-surface-implemented
+    type: feature
+    date: 2026-09-14
+    summary: >
+      `tool-export-surface` реализован (user: "супер! го!"). Новый подпуть `./tools` — четыре
+      `toolDefinition()`-обёртки (`check_outfit`/`assemble_outfit`/`generate_skin_css`/`skin_gaps`,
+      все `access: "read"`) рядом с голыми функциями, которые они описывают. Найден и решён блокер,
+      не предвиденный при планировании: `ComponentPassport`/`PassportLookup` несёт функции
+      (`@zag-js/anatomy`), не JSON — паспорт/lookup исключены из `inputSchema` всех четырёх тулов
+      как инфраструктура вызова (знание живого реестра приложения), не как значение, которое агент
+      выбирает за один вызов. Пятая предложенная операция (`skinContrast`) отложена — у механики
+      сегодня нет потребителя (`contrast-consumer`, Open). Подробности решения, найденных блокеров
+      (включая побочный — `.d.ts`-эмит `ToolDefinition<...>` без явной аннотации константы не
+      собирается) и объёма тестов — в самом пункте `tool-export-surface` (Done) и FAQ.md. Итог:
+      160/160 тестов (было 141), `lint`/`typecheck`/`build` пакета — зелёные, `pnpm build` из корня
+      без цикла (падают только предсуществующие `ewc`/`reference`).
+
+  - id: tool-export-surface-planned
+    type: plan
+    date: 2026-09-14
+    summary: >
+      Architect завёл план по просьбе user — механика тулов (`@web-core/neurobox/tool`, обязательный
+      `access`) готова и закоммичена, `packages/skin` первый реальный потребитель. Architect
+      намеренно НЕ заглядывал в `apps/skin/.mcp` за готовым списком операций (user поправил прямым
+      текстом: «пакеты просто дефайнят свои тулзы» — не копия чужой зоны, свой домен) — список
+      операций и форма подпути остаются за владельцем. Связан с уже существующим `editor-plugin-surface`
+      (тот же повод, раньше ждал UI-редактора, теперь есть агент — одна поверхность, не две).
+
+  - id: no-passport-field-needed-for-validation
+    type: decision
+    date: 2026-09-13
+    summary: >
+      Закрытие открытого вопроса из `@web-core/form/ROADMAP.yaml`'s `passport-validation-field-
+      open-question` (owner-form честно не решал сам, назвал architect'у на сверку). Architect
+      прочитал реальную реализацию (`@web-core/form/solid/provider.tsx`, прошедшую ревью с 11/11
+      тестами) вместо того, чтобы гадать по аналогии с `selfAssembly` — `useComponentValidation`
+      физически не читает `ComponentPassport`. Решение: новое поле паспорту не заводим, весь
+      cross-zone объём оси валидации ложится на `packages/ui` (`kit-life-validation-fold-in`),
+      этот пакет в разговор не входит. См. `no-validation-axis-on-passport` выше.
+
+  - id: repeat-mechanic-handed-to-assembly
+    type: plan
+    date: 2026-09-12
+    summary: >
+      Найдено сбоку, при проектировании `@web-core/form` (движка валидации): `repeat`/`recur`
+      (разворот дерева сборки по реальным данным массива) жил в этом пакете
+      (`engine/passport/assembly/expand.ts:baseAssemblyOf`), хотя это механика дерева сборки, не
+      скина — user сверил сам: «репит это не меха скина, это меха сборки». Решение user:
+      переезжает в `packages/assembly`, роадмап этого пакета architect пишет только ПОСЛЕ ревью
+      переезда — не раньше.
+
+      Owner `packages/assembly` перенёс `baseAssemblyOf`+`scopedPath` в `engine/expand.ts` того
+      пакета, на настоящих `AssemblyTree`/`resolveDataBinding`, тесты перенесены и зелёные
+      (39/39, сверено architect'ом прогоном, не по отчёту). Этот пакет НЕ тронут тем заходом —
+      `output.ts`'s `BaseAssemblyTree` (копия типов) и `binding.ts`'s ручной `resolveDataBinding`
+      (копия поведения) остаются как были, старый живой путь (`component-registry.ts` →
+      `./passport.js` → этот пакет) продолжает работать.
+
+      После ревью user сказал: «согласен, го тест, потом роадмап по факту» — проверить эмпирически,
+      можно ли этому пакету завести реальную зависимость на `@web-core/assembly` (нужна для
+      cutover), прежде чем писать план на предположении. Architect прогнал диагностику (реальная
+      `dependencies`-запись, `pnpm build` из корня) — цикл `assembly ⇄ skin` подтверждён жёстким
+      отказом Nx, правка тут же отменена. Результат и направление починки (assembly должен сперва
+      убрать СВОЮ type-only зависимость на этот пакет) записаны в `packages/assembly/ROADMAP.yaml`
+      (`verified-real-cycle-with-skin`/`assembly-drop-skin-devdependency`). Категория «Механика
+      дерева переехала в packages/assembly — снять свою копию» (выше) — cutover-план этого пакета,
+      первый пункт которого прямо блокирован на том, что assembly сделает первым.
+
+  - id: cutover-first-three-done-fourth-blocked
+    type: feature
+    date: 2026-09-12
+    summary: >
+      Пункты 1–3 категории «Механика дерева переехала в packages/assembly — снять свою копию»
+      сделаны этим заходом. Проверено `packages/assembly/ROADMAP.yaml` — `assembly-drop-skin-
+      devdependency` там уже `Done` (`@web-core/skin` вычищен из `package.json` того пакета
+      целиком), блокер `wait-for-assembly-drop-skin-devdependency` снят.
+
+      Заведена реальная `"@web-core/assembly": "workspace:*"` в `dependencies` этого пакета,
+      `pnpm install` — без предупреждения про цикл. `output.ts` (копия
+      `BaseAssemblyElement/Content/Node/Tree`+`isContentNode`) удалён, `engine/passport/
+      assembly/index.ts` реэкспортирует настоящие типы из `@web-core/assembly` под ТЕМИ ЖЕ
+      именами (`AssemblyElement as BaseAssemblyElement` и т.д.) — публичная граница
+      (`./editor`, `packages/ui/src/passport.ts`) не почувствовала переезда ни на бит.
+      `binding.ts`'s ручной `resolveDataBinding` заменён на `export { resolveDataBinding } from
+      "@web-core/assembly"`; generic-обёртка (`DataBinding`/`DynamicValue`/`isDataBinding` с
+      `Data`/`AtRoot`) оставлена своей — это была явная граница задачи, не тронута.
+
+      Проверено: `pnpm run lint`/`typecheck`/`test` (141/141) из этого пакета — все зелёные,
+      `pnpm run build` (vite) — собирается, новое предупреждение "@web-core/assembly ... treating
+      it as external" — тот же класс, что уже был у `@web-core/style` (peer), не ошибка (стандартное
+      поведение `externalizeDependencies` для любого bare-импорта в library-режиме). `pnpm build`
+      из корня — `@web-core/assembly:build`/`@web-core/skin:build` оба зелёные, цикла нет; упавший
+      `@web-core/skin-app:build` — предсуществующий разрыв в `apps/skin` (`./tree` не резолвится,
+      из незакоммиченного `wip(skin app)` рефактора), не эта работа и не эта зона.
+
+      Пункт 4 (`baseAssemblyOf-becomes-thin-reexport`) НЕ сделан — найден блокер, которого план не
+      предвидел: `ComponentPassport` этого пакета структурно НЕ совместим с `ReadablePassport`,
+      которого просит настоящая `baseAssemblyOf` (нет `genus`, нет `accepts` на `PassportPart`).
+      Подробности и мои соображения — в описании самого пункта 4 выше. Решение, как мостить (или
+      ослаблять контракт `@web-core/assembly` со стороны его owner'а), не принимал в одиночку —
+      сообщил через user, не стал городить `as unknown as` тайком. Пункт 5
+      (`switch-consumers-to-assembly-home`) не трогал — чужая зона (`packages/ui`).
+
+  - id: editorInfo-merge-was-a-detour
+    type: plan
+    date: 2026-09-12
+    summary: >
+      Мост через `editorInfo` (пункт 4, сделан этим же владельцем по ТЗ architect'а) оказался
+      ненужным крюком. Architect (собственная ошибка, не владельца этого пакета) предложил мёрж
+      `ComponentPassport`+`PassportEditorInfo` в `ReadablePassport` по аналогии с
+      `readable()` (`packages/ui/src/component-registry.ts`), не проверив ПЕРЕД советом, нужны ли
+      `genus`/`accepts` самой функции `baseAssemblyOf` — не нужны, тело трогает только
+      `component`/`anatomy.keys()`/`root`. Владелец этого пакета честно реализовал мост и
+      обнаружил реальную цену — 33 файла `packages/ui` (не 1, как читался план) переставали
+      типа-проверяться. User прямо назвал происходящее и потребовал: проверять до конца ПЕРЕД
+      тем как ТЗ уходит владельцу, не после.
+
+      Разбор доведён architect'ом инструментом (`tsc --strict`), не рассуждением —
+      `@web-core/assembly/ROADMAP.yaml`'s `baseAssemblyOf-passport-type-too-wide` сузил параметр
+      настоящей функции до `GrowablePassport`, который `ComponentPassport` удовлетворяет без
+      мержа. Этот заход (`revert-editorInfo-merge-now-unnecessary`) откатывает мост — `packages/ui`
+      не трогается вообще, весь объём работы, который предвиделся `switch-consumers-to-assembly-
+      home`, испаряется вместе с причиной, а не переносится на владельца `packages/ui`.
